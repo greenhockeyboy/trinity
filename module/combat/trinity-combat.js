@@ -1,8 +1,7 @@
 import { trinityRoll } from "/systems/trinity/module/trinity-roll.js";
 // import { setFocusName } from "/systems/trinity/module/combat/focus-dialog.js";
 
-export class TrinityCombat extends Combat
-{
+export class TrinityCombat extends Combat {
 
   async startCombat() {
 
@@ -14,13 +13,13 @@ export class TrinityCombat extends Combat
     let updates = {};
 
     if ( isGrouped ) {
-      // this.groupInfo = this.data.combatants;
-      updates = this.data.combatants.map(c => { return this._hasPlayer(c) });
+      // this.groupInfo = this.combatants;
+      updates = this.combatants.map(c => { return this._hasPlayer(c) });
       await this.updateEmbeddedDocuments("Combatant", updates);
     }
     */
 
-    return this.update({round: 1, turn: 0});
+    return this.update({ round: 1, turn: 0 });
   }
 
   async nextRound() {
@@ -41,19 +40,19 @@ export class TrinityCombat extends Combat
     let isGrouped = game.settings.get("trinity", "initGroup");
     let updates = {};
 
-    if ( isGrouped ) {
-      // this.groupInfo = this.data.combatants;
-      updates = this.data.combatants.map(c => { return this._hasPlayer(c) });
+    if (isGrouped) {
+      // this.groupInfo = this.combatants;
+      updates = this.combatants.map(c => { return this._hasPlayer(c) });
       await this.updateEmbeddedDocuments("Combatant", updates);
     }
   }
 
   _hasPlayer(c) {
     console.log("combat c:", c);
-    if (c.token?.data?.disposition === 1) {
+    if (c.token?.disposition === 1) {
       return { _id: c.id, img: "systems/trinity/assets/icons-color/team-friendly.png", name: "Friendly" };
     }
-    else if (c.token?.data?.disposition === 0) {
+    else if (c.token?.disposition === 0) {
       return { _id: c.id, img: "systems/trinity/assets/icons-color/team-neutral.png", name: "Neutral" };
     }
     else {
@@ -62,8 +61,7 @@ export class TrinityCombat extends Combat
   }
 
 
-  async rollInitiative(ids, {formula=null, updateTurn=true, messageOptions={}}={})
-  {
+  async rollInitiative(ids, { formula = null, updateTurn = true, messageOptions = {} } = {}) {
     // Structure input data
     ids = typeof ids === "string" ? [ids] : ids;
     const currentId = this.combatant?.id;
@@ -71,15 +69,14 @@ export class TrinityCombat extends Combat
 
     let updates = [];
     // for(const id of ids)
-    for ( let [i, id] of ids.entries() )
-    {
+    for (let [i, id] of ids.entries()) {
       const combatant = this.combatants.get(id);
-      if ( !combatant?.isOwner ) return results;
+      if (!combatant?.isOwner) return results;
 
       // Actors w/o an initiative roll
-      if (typeof combatant.actor.data.data.linkedRolls.initiative === "undefined" || combatant.actor.data.data.linkedRolls.initiative === "") {
+      if (typeof combatant.actor.system.linkedRolls.initiative === "undefined" || combatant.actor.system.linkedRolls.initiative === "") {
         let chatData = {
-          content: `${combatant.actor.data.name} has no initiative roll selected.`
+          content: `${combatant.actor.name} has no initiative roll selected.`
         };
         ChatMessage.create(chatData)
 
@@ -90,8 +87,8 @@ export class TrinityCombat extends Combat
 
       } else {
 
-      // Actors w/ an initiative roll selected
-        let p = combatant.actor.data.data.savedRolls[combatant.actor.data.data.linkedRolls.initiative];
+        // Actors w/ an initiative roll selected
+        let p = combatant.actor.system.savedRolls[combatant.actor.system.linkedRolls.initiative];
         let breaker = p.diceTotal * 0.01;
         let initModel = game.settings.get("trinity", "initModel");
         let rollFormula = "";
@@ -103,7 +100,7 @@ export class TrinityCombat extends Combat
 
         // const roll = game.trinity.TRoll.create(rollFormula, {}, {}, p.enha.value);
         let roll = new Roll(rollFormula);
-        await roll.evaluate({async: true});
+        await roll.evaluate({ async: true });
 
         updates.push({
           _id: id,
@@ -111,22 +108,22 @@ export class TrinityCombat extends Combat
         });
 
         // Complication List
-            let compList = "";
-            if( typeof combatant.actor.complications !== 'undefined' && combatant.actor.complications !== null) {
-              for (let comp of combatant.actor.complications) {
-                if (compList.length > 0) {
-                  compList += "<br/>";
-                  compList += comp.data.complication.value + " - " + comp.name;
-                }
-                if (compList.length === 0) {
-                  compList += `<hr /><div class="small">Character's Complications:</div><div class="small-note">`;
-                  compList += comp.data.complication.value + " - " + comp.name;
-                }
-              }
-              if (compList.length > 0) {
-                compList += "</div>";
-              }
+        let compList = "";
+        if (typeof combatant.actor.complications !== 'undefined' && combatant.actor.complications !== null) {
+          for (let comp of combatant.actor.complications) {
+            if (compList.length > 0) {
+              compList += "<br/>";
+              compList += comp.data.complication.value + " - " + comp.name;
             }
+            if (compList.length === 0) {
+              compList += `<hr /><div class="small">Character's Complications:</div><div class="small-note">`;
+              compList += comp.data.complication.value + " - " + comp.name;
+            }
+          }
+          if (compList.length > 0) {
+            compList += "</div>";
+          }
+        }
 
 
         roll.toMessage({
@@ -137,14 +134,14 @@ export class TrinityCombat extends Combat
 
       }
     }
-    if ( !updates.length ) return this;
+    if (!updates.length) return this;
 
     console.log("COMBAT THIS:", this);
     await this.updateEmbeddedDocuments("Combatant", updates);
 
     // Ensure the turn order remains with the same combatant
-    if ( updateTurn && currentId ) {
-      await this.update({turn: this.turns.findIndex(t => t.id === currentId)});
+    if (updateTurn && currentId) {
+      await this.update({ turn: this.turns.findIndex(t => t.id === currentId) });
     }
 
     return this;
@@ -154,7 +151,7 @@ export class TrinityCombat extends Combat
 
 /*
 export async function giveFocus(c) {
-  let dispo = c.token?.data?.disposition;
+  let dispo = c.token?.disposition;
   let actorName = "Temp Test Value";
   let updates = {};
   // Create Dialog Here, return selected actor

@@ -4,17 +4,17 @@ import { rollDataTemplate } from "/systems/trinity/module/protos.js";
 
 export async function rollDialog(targetActor, rollData, event, force) {
 
-/*
-  event = event || {};
-  const element = event.currentTarget || {};
-  const dataset = element.dataset || {};
-  var targetAttr = [];
-  var targetSkill = [];
-*/
+  /*
+    event = event || {};
+    const element = event.currentTarget || {};
+    const dataset = element.dataset || {};
+    var targetAttr = [];
+    var targetSkill = [];
+  */
 
   // Elements table, or picked elements, will include the details of the selected roll components. (Replacing rollParts)
   // Build defaults if empty
-  if (typeof rollData === 'undefined' || rollData === null ) {
+  if (typeof rollData === 'undefined' || rollData === null) {
     console.log("Creating default rollData");
     rollData = {};
     rollData = JSON.parse(JSON.stringify(rollDataTemplate));
@@ -31,15 +31,15 @@ export async function rollDialog(targetActor, rollData, event, force) {
   var itemList = [];
 
   for (let i of targetActor.items) {
-    if (i.type === 'attribute' && i.data.data.flags.isMain) { attributes.push(i); }
+    if (i.type === 'attribute' && i.system.flags.isMain) { attributes.push(i); }
     if (i.type === 'skill') { skills.push(i); }
-    if (i.type === 'attribute' && i.data.data.flags.isQuantum) { quantum.push(i); }
-    if (i.type === 'quantumPower' && i.data.data.flags.isDice) { powers.push(i); }
-    if (i.data.data.flags.isEnhancement) { enhancements.push(i); }
+    if (i.type === 'attribute' && i.system.flags.isQuantum) { quantum.push(i); }
+    if (i.type === 'quantumPower' && i.system.flags.isDice) { powers.push(i); }
+    if (i.system.flags.isEnhancement) { enhancements.push(i); }
   }
 
 
-  let html = await renderTemplate("systems/trinity/templates/roll/roll-dialog.html", {actor: targetActor, rollData: rollData, itemList: itemList});
+  let html = await renderTemplate("systems/trinity/templates/roll/roll-dialog.html", { actor: targetActor, rollData: rollData, itemList: itemList });
 
   class TRDialog extends Dialog {
 
@@ -113,11 +113,12 @@ export async function rollDialog(targetActor, rollData, event, force) {
 
     activateListeners(html) {
       super.activateListeners(html);
+      html = $(html);
 
       html.find('.selector').click((event) => {
         console.log("Roll Dialog This:", this);
         console.log("Selector Event:", event);
-        switch(event.currentTarget.id) {
+        switch (event.currentTarget.id) {
           case "attributes": itemList = attributes; break;
           case "skills": itemList = skills; break;
           case "quantum": itemList = quantum; break;
@@ -149,7 +150,7 @@ export async function rollDialog(targetActor, rollData, event, force) {
     }
   }
 
-// logging
+  // logging
   console.log("Pre-TRDialog: -------------");
   console.log("this", this);
   console.log("targetActor", targetActor);
@@ -159,7 +160,7 @@ export async function rollDialog(targetActor, rollData, event, force) {
     title: 'Roll',
     buttons: {},
     content: html
-  }, {width: 350, height: "auto"}, {targetActor, rollData}).render(true);
+  }, { width: 350, height: "auto" }, { targetActor, rollData }).render(true);
 
 }
 

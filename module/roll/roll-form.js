@@ -49,7 +49,7 @@ export class RollForm extends FormApplication {
       this.oItemList = Object.assign({}, object.items);
       this.oSettings = Object.assign({}, object.settings);
 
-      if (object.id) {this.saved = true;}
+      if (object.id) { this.saved = true; }
       /*
       this.object.name = object.name;
       this.object.desc = object.desc;
@@ -72,17 +72,17 @@ export class RollForm extends FormApplication {
     }
 
     // Model S: Check for penalties, add if needed.
-    if ( game.settings.get("trinity", "healthModel") === "modelS" && actor.data.data.health.summary.penalty < 0 ) {
+    if (game.settings.get("trinity", "healthModel") === "modelS" && actor.system.health.summary.penalty < 0) {
       let rollItemID = randomID(16);
       this.object.items[rollItemID] = {
-        value : actor.data.data.health.summary.penalty,
-        name : actor.data.data.health.summary.status,
-        SourceType : "Injury",
-        note : "Injury Penalty",
-        isDice : true,
-        multiplier : 1,
-        id : rollItemID,
-        isCustom : true
+        value: actor.system.health.summary.penalty,
+        name: actor.system.health.summary.status,
+        SourceType: "Injury",
+        note: "Injury Penalty",
+        isDice: true,
+        multiplier: 1,
+        id: rollItemID,
+        isCustom: true
       }
     }
 
@@ -115,6 +115,7 @@ export class RollForm extends FormApplication {
 
   activateListeners(html) {
     super.activateListeners(html);
+    html = $(html);
 
     html.find('.selector').click(async (event) => {
       console.log("Roll Dialog This:", this);
@@ -193,7 +194,7 @@ export class RollForm extends FormApplication {
     });
 
     html.find('.setting').change(async (event) => {
-      this.submit({preventClose: true});
+      this.submit({ preventClose: true });
     });
 
   }
@@ -220,22 +221,22 @@ export class RollForm extends FormApplication {
     this.itemListType = type;
     this.itemList = [];
     for (let i of this.actor.items) {
-      if (i.data.data.flags.isFacet && !this.actor.data.data.flags.isTalent) { continue; }
-      if (type === "enhancement" && i.data.data.flags.isEnhancement === true) { this.itemList.push(i); continue; }
-      if (type === "attribute" && i.type === "attribute" && i.data.data.flags.isMain === true) { this.itemList.push(i); continue; }
+      if (i.system.flags.isFacet && !this.actor.system.flags.isTalent) { continue; }
+      if (type === "enhancement" && i.system.flags.isEnhancement === true) { this.itemList.push(i); continue; }
+      if (type === "attribute" && i.type === "attribute" && i.system.flags.isMain === true) { this.itemList.push(i); continue; }
       if (i.name === type) { this.itemList.push(i); continue; }
-      if (type !== "attribute" && i.type === type && i.data.data.flags.isEnhancement === false) { this.itemList.push(i); }
+      if (type !== "attribute" && i.type === type && i.system.flags.isEnhancement === false) { this.itemList.push(i); }
     }
   }
 
   _addItem(id, custom) {
     console.log("_addItem this/args", this, id, custom);
-     // var rollData = this.object;
+    // var rollData = this.object;
     let itemValue = 0;
     let itemName = "";
     let isDice = true;
     let note = "";
-    let rollItemID ="";
+    let rollItemID = "";
     let sourceType = "";
     let isCustom = false;
     let mult = 1;
@@ -251,15 +252,15 @@ export class RollForm extends FormApplication {
     } else {
       const item = this.actor.items.get(id);
       rollItemID = item.id;
-      itemValue = item.data.data.flags.isEnhancement ? item.data.data.enhancement.value : item.data.data.value;
+      itemValue = item.system.flags.isEnhancement ? item.system.enhancement.value : item.system.value;
       itemName = item.name;
-      isDice = !item.data.data.flags.isEnhancement;
+      isDice = !item.system.flags.isEnhancement;
       sourceType = item.type;
       // Note:
-      if (item.type === "attribute" && item.data.data.flags.isMain === true) {
-        note = item.data.data.arena + "/" + item.data.data.approach;
+      if (item.type === "attribute" && item.system.flags.isMain === true) {
+        note = item.system.arena + "/" + item.system.approach;
       } else {
-        note = item.data.data.enhancement.relevance;
+        note = item.system.enhancement.relevance;
       }
       // Multiplier:
       if (item.id in this.object.items) {
@@ -268,14 +269,14 @@ export class RollForm extends FormApplication {
     }
 
     this.object.items[rollItemID] = {
-      value : itemValue,
-      name : itemName,
-      SourceType : sourceType,
-      note : note,
-      isDice : isDice,
-      multiplier : mult,
-      id : rollItemID,
-      isCustom : isCustom
+      value: itemValue,
+      name: itemName,
+      SourceType: sourceType,
+      note: note,
+      isDice: isDice,
+      multiplier: mult,
+      id: rollItemID,
+      isCustom: isCustom
     }
   }
 
@@ -295,8 +296,8 @@ export class RollForm extends FormApplication {
 
   _rollDataTemplate() {
     return {
-      name : "New Roll",
-      id : "",
+      name: "New Roll",
+      id: "",
       get flavor() {
         let text = '<div class="flex-flavor">';
         for (let i of Object.keys(this.items)) {
@@ -316,7 +317,7 @@ export class RollForm extends FormApplication {
         text += '</div>'
         return text;
       },
-      desc : "",
+      desc: "",
       // formula : "",
       // use Getter to compute this automatically
       get formula() {
@@ -326,14 +327,14 @@ export class RollForm extends FormApplication {
         let doub = '';
         let enha = '';
         let nsca = '';
-        if (this.flags.fail) {fail = `df<=${this.settings.fail}`;}
-        if (this.flags.doub) {doub = `csa>=${this.settings.doub}`;}
-        if (enhaScale > 0) {enha = `ae${enhaScale}`;}
-        if (this.settings.nsca > 1) {nsca = `*${this.settings.nsca}`;}
+        if (this.flags.fail) { fail = `df<=${this.settings.fail}`; }
+        if (this.flags.doub) { doub = `csa>=${this.settings.doub}`; }
+        if (enhaScale > 0) { enha = `ae${enhaScale}`; }
+        if (this.settings.nsca > 1) { nsca = `*${this.settings.nsca}`; }
         let rollFormula = `(${this.diceTotal}d10x>=${this.settings.expl}cs>=${this.settings.succ}${doub}${fail}${enha})${nsca}`;
         return rollFormula;
       },
-      items : {
+      items: {
         /*
         value
         name
@@ -347,7 +348,7 @@ export class RollForm extends FormApplication {
         for (let i of Object.keys(this.items)) {
           if (this.items[i].isDice) { total += this.items[i].value * this.items[i].multiplier; }
         }
-        if (total < 1) {total = 1}
+        if (total < 1) { total = 1 }
         return total;
       },
       get enhaTotal() {
@@ -357,20 +358,20 @@ export class RollForm extends FormApplication {
         }
         return total;
       },
-      settings : {
-        expl : this.actor.data.data.rollSettings.expl.value,
-        succ : this.actor.data.data.rollSettings.succ.value,
-        nsca : this.actor.data.data.rollSettings.nsca.value, // Narrative Scale (Absolute)
-        dsca : this.actor.data.data.rollSettings.dsca.value, // Dramatic Scale (Difference)
-        fail : game.settings.get("trinity", "defaultFail"), // Fail value, for old-school homebrew
-        doub : game.settings.get("trinity", "defaultDouble"), // Double Success value, for old-school homebrew
-        init : false // For Compatibility
+      settings: {
+        expl: this.actor.system.rollSettings.expl.value,
+        succ: this.actor.system.rollSettings.succ.value,
+        nsca: this.actor.system.rollSettings.nsca.value, // Narrative Scale (Absolute)
+        dsca: this.actor.system.rollSettings.dsca.value, // Dramatic Scale (Difference)
+        fail: game.settings.get("trinity", "defaultFail"), // Fail value, for old-school homebrew
+        doub: game.settings.get("trinity", "defaultDouble"), // Double Success value, for old-school homebrew
+        init: false // For Compatibility
       },
-      flags : {
-        fail : this.actor.data.data.flags.isMage,
-        doub : false
+      flags: {
+        fail: this.actor.system.flags.isMage,
+        doub: false
       },
-      favorite : false
+      favorite: false
     };
   }
 
@@ -393,7 +394,7 @@ export class RollForm extends FormApplication {
             rollData.id = uniqueRollNumber;
 
             let updates = {
-              "data.savedRolls": {
+              "system.savedRolls": {
                 [uniqueRollNumber]: rollData
               }
             };
@@ -427,7 +428,7 @@ export class RollForm extends FormApplication {
             // rollData.id = uniqueRollNumber;
 
             let updates = {
-              "data.savedRolls": {
+              "system.savedRolls": {
                 [rollData.id]: rollData
               }
             };

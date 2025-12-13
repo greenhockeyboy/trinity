@@ -21,35 +21,35 @@ export class OverviewApp extends Application {
   update() {
 
 
-/** Original
-    console.log("Overview update (before), This:", this);
-    if (typeof this.state.momentum === 'undefined') {
-      console.log("this.state.momentum === 'undefined'");
-      this.state.momentum = {};
-      this.state.momentum.max = game.settings.get("trinity", "momentum-max");
-      this.state.momentum.current = game.settings.get("trinity", "momentum-current");
-      this.state.momentum.spent = game.settings.get("trinity", "momentum-spent");
-    } else {
-      console.log("this.state.momentum !== 'undefined'");
-      if (this.state.momentum.max !== game.settings.get("trinity", "momentum-max")) {
-        console.log("this.state.momentum.max !== game.settings");
-        game.settings.set("trinity", "momentum-max", this.state.momentum.max);
-      }
-      if (this.state.momentum.current !== game.settings.get("trinity", "momentum-current")) {
-        game.settings.set("trinity", "momentum-current", this.state.momentum.current);
-      }
-      if (this.state.momentum.spent !== game.settings.get("trinity", "momentum-spent")) {
-        game.settings.set("trinity", "momentum-spent", this.state.momentum.spent);
-      }
-    }
-    console.log("Overview update (after), This:", this);
-**/
+    /** Original
+        console.log("Overview update (before), This:", this);
+        if (typeof this.state.momentum === 'undefined') {
+          console.log("this.state.momentum === 'undefined'");
+          this.state.momentum = {};
+          this.state.momentum.max = game.settings.get("trinity", "momentum-max");
+          this.state.momentum.current = game.settings.get("trinity", "momentum-current");
+          this.state.momentum.spent = game.settings.get("trinity", "momentum-spent");
+        } else {
+          console.log("this.state.momentum !== 'undefined'");
+          if (this.state.momentum.max !== game.settings.get("trinity", "momentum-max")) {
+            console.log("this.state.momentum.max !== game.settings");
+            game.settings.set("trinity", "momentum-max", this.state.momentum.max);
+          }
+          if (this.state.momentum.current !== game.settings.get("trinity", "momentum-current")) {
+            game.settings.set("trinity", "momentum-current", this.state.momentum.current);
+          }
+          if (this.state.momentum.spent !== game.settings.get("trinity", "momentum-spent")) {
+            game.settings.set("trinity", "momentum-spent", this.state.momentum.spent);
+          }
+        }
+        console.log("Overview update (after), This:", this);
+    **/
 
-// NEW
-this.state.momentum = {};
-this.state.momentum.max = game.settings.get("trinity", "momentum-max");
-this.state.momentum.current = game.settings.get("trinity", "momentum-current");
-this.state.momentum.spent = game.settings.get("trinity", "momentum-spent");
+    // NEW
+    this.state.momentum = {};
+    this.state.momentum.max = game.settings.get("trinity", "momentum-max");
+    this.state.momentum.current = game.settings.get("trinity", "momentum-current");
+    this.state.momentum.spent = game.settings.get("trinity", "momentum-spent");
 
 
 
@@ -76,7 +76,7 @@ this.state.momentum.spent = game.settings.get("trinity", "momentum-spent");
     }
 
     actors = actors.map(actor => {
-      const data = actor.data.data;
+      const data = actor.system;
       return this.getActorDetails(actor);
     });
 
@@ -87,7 +87,7 @@ this.state.momentum.spent = game.settings.get("trinity", "momentum-spent");
       momentum: this.state.momentum,
     };
 
-// Add Icons for Aspirations
+    // Add Icons for Aspirations
     for (let actor of this.state.actors) {
       // console.log("Iterating:", actor);
       actor.aspirations.shortTerm1.icon = "<i class=\"fas fa-stopwatch big flex-valign\"></i>";
@@ -121,24 +121,25 @@ this.state.momentum.spent = game.settings.get("trinity", "momentum-spent");
   }
 
   getActorDetails(actor) {
-    const data = actor.data.data;
+    const data = actor.system;
 
-      return {
-        id: actor.id,
-        isHidden: this.hiddenActors.includes(actor.id),
-        name: actor.name,
-        aspirations: actor.data.data.aspirations
-      };
+    return {
+      id: actor.id,
+      isHidden: this.hiddenActors.includes(actor.id),
+      name: actor.name,
+      aspirations: actor.system.aspirations
+    };
 
   }
 
   activateListeners(html) {
     super.activateListeners(html);
+    html = $(html);
 
     // Change Momentum
 
     html.find('.momentum').change(ev => {
-      // this.actor.update({ 'data.inspiration.value': ++this.actor.data.data.inspiration.value });
+      // this.actor.update({ 'data.inspiration.value': ++this.actor.system.inspiration.value });
       // console.log("Momentum Change");
       // console.log(this.state.momentum.max, this.state.momentum.current, this.state.momentum.spent);
       // game.settings.set("trinity", "momentum-max", this.state.momentum.max);

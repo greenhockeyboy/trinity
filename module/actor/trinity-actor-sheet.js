@@ -24,7 +24,7 @@ export class TrinityActorSheet extends ActorSheet {
 
   }
 
-// ------- New Method of Collapse/Expand Content
+  // ------- New Method of Collapse/Expand Content
 
   async _render(force = false, options = {}) {
     console.log("_render Called");
@@ -40,10 +40,10 @@ export class TrinityActorSheet extends ActorSheet {
     const html = $(this.form).parent();
 
     this.toggleStates = {
-      headers : [],
-      content : [],
-      chipContent : [],
-      hiddenContent : []
+      headers: [],
+      content: [],
+      chipContent: [],
+      hiddenContent: []
     };
 
     // Headers
@@ -73,7 +73,7 @@ export class TrinityActorSheet extends ActorSheet {
     */
 
 
-    console.log("_saveToggleStates:",this.toggleStates);
+    console.log("_saveToggleStates:", this.toggleStates);
 
   }
 
@@ -126,10 +126,10 @@ export class TrinityActorSheet extends ActorSheet {
 
     }
 
-    console.log("_setToggleStates:",this.toggleStates);
+    console.log("_setToggleStates:", this.toggleStates);
   }
 
-// ------ Method section End
+  // ------ Method section End
 
   /** @override */
   static get defaultOptions() {
@@ -209,26 +209,26 @@ export class TrinityActorSheet extends ActorSheet {
     const actions = [];
 
     /* Old Healthbox code
-    for (let hb of Object.keys(this.actor.data.data.healthboxes)) {
+    for (let hb of Object.keys(this.actor.system.healthboxes)) {
       // console.log("Heathbox Logging - hb:", hb);
-      let injuries = Object.keys(this.actor.data.items.filter(h => h.data.data.flags.isInjury && (h.data.data.injury.value === this.actor.data.data.healthboxes[hb].conditionLevel))).length;
+      let injuries = Object.keys(this.actor.data.items.filter(h => h.data.data.flags.isInjury && (h.data.data.injury.value === this.actor.system.healthboxes[hb].conditionLevel))).length;
       //console.log("Heathbox Logging - injuries:", injuries);
       // add if - add the property if not already in healthboxes
       if (typeof healthBoxes[hb] === 'undefined' || healthBoxes[hb] === null) {
         // console.log("Heathbox Logging - check to add");
         healthBoxes[hb] = {};
         // console.log("Heathbox Logging - Added to healthBoxes:", healthBoxes);
-        healthBoxes[hb].name = this.actor.data.data.healthboxes[hb].name;
-        // healthBoxes[hb].push(this.actor.data.data.healthboxes[hb].name);
+        healthBoxes[hb].name = this.actor.system.healthboxes[hb].name;
+        // healthBoxes[hb].push(this.actor.system.healthboxes[hb].name);
       }
-      if ((this.actor.data.data.healthboxes[hb].value > 0) || (injuries > 0)) {
+      if ((this.actor.system.healthboxes[hb].value > 0) || (injuries > 0)) {
         // console.log("Heathbox Logging - add injuries");
-        if (injuries <= this.actor.data.data.healthboxes[hb].value) {
+        if (injuries <= this.actor.system.healthboxes[hb].value) {
           healthBoxes[hb].filled = injuries;
-          healthBoxes[hb].empty = this.actor.data.data.healthboxes[hb].value - healthBoxes[hb].filled;
+          healthBoxes[hb].empty = this.actor.system.healthboxes[hb].value - healthBoxes[hb].filled;
           healthBoxes[hb].extra = 0;
         } else {
-          healthBoxes[hb].extra = injuries - this.actor.data.data.healthboxes[hb].value;
+          healthBoxes[hb].extra = injuries - this.actor.system.healthboxes[hb].value;
           healthBoxes[hb].filled = injuries - healthBoxes[hb].extra;
           healthBoxes[hb].empty = 0;
         }
@@ -243,11 +243,11 @@ export class TrinityActorSheet extends ActorSheet {
     */
 
     // Identify Saved Rolls w/ Initiative Flagged
-    for (let sRoll of Object.keys(this.actor.data.data.savedRolls)) {
+    for (let sRoll of Object.keys(this.actor.system.savedRolls)) {
       // IF check for compatibility w/ new savedRolls styles
-      if (typeof this.actor.data.data.savedRolls[sRoll].elements !== 'undefined') {
-        if (typeof this.actor.data.data.savedRolls[sRoll].elements.init !== 'undefined' && this.actor.data.data.savedRolls[sRoll].elements.init !== null) {
-          if (this.actor.data.data.savedRolls[sRoll].elements.init.value) {
+      if (typeof this.actor.system.savedRolls[sRoll].elements !== 'undefined') {
+        if (typeof this.actor.system.savedRolls[sRoll].elements.init !== 'undefined' && this.actor.system.savedRolls[sRoll].elements.init !== null) {
+          if (this.actor.system.savedRolls[sRoll].elements.init.value) {
             initRolls.push(sRoll);
           }
         }
@@ -255,22 +255,22 @@ export class TrinityActorSheet extends ActorSheet {
     }
 
     // Check that Default Initiative Roll is still valid
-    if (this.actor.data.data.initiativeRollID !== "") {
-      if(typeof this.actor.data.data.savedRolls[this.actor.data.data.initiativeRollID] === 'undefined') {
-        this.actor.data.data.initiativeRollID = "";
+    if (this.actor.system.initiativeRollID !== "") {
+      if (typeof this.actor.system.savedRolls[this.actor.system.initiativeRollID] === 'undefined') {
+        this.actor.system.initiativeRollID = "";
       }
     }
 
     // Get / Set All Items Filter
-    if (typeof actorData.data.data.allItemsFilter === 'undefined') {
-      actorData.data.data.allItemsFilter = "All";
+    if (typeof actorData.system.allItemsFilter === 'undefined') {
+      actorData.system.allItemsFilter = "All";
       // console.log("Set/Reset allItemsFilter to empty.")
     }
 
     // Sort Items before allocating, alphabetically & favorited
     let sheetItems = sheetData.items;
-    sheetItems.sort(function(a, b) {return (a.name > b.name) ? 1 : -1;});
-    sheetItems.sort(function(x, y) {return (x.data.flags.isFavorite === y.data.flags.isFavorite)? 0 : x? -1 : 1;});
+    sheetItems.sort(function (a, b) { return (a.name > b.name) ? 1 : -1; });
+    sheetItems.sort(function (x, y) { return (x.data.flags.isFavorite === y.data.flags.isFavorite) ? 0 : x ? -1 : 1; });
 
     // Iterate through items, allocating to containers
     for (let i of sheetItems) {
@@ -311,31 +311,31 @@ export class TrinityActorSheet extends ActorSheet {
         if (i.data.flags.isMain) {
           if (typeof i.data.sortNum === 'undefined' || i.data.sortNum === null) { i.data.sortNum = 0; }
           attributes.push(i);
-          attributes.sort(function(a, b) {
+          attributes.sort(function (a, b) {
             return a.data.sortNum - b.data.sortNum;
           });
         } else if (i.data.flags.isFacet) {
           if (typeof i.data.sortNum === 'undefined' || i.data.sortNum === null) { i.data.sortNum = 0; }
           facets.push(i);
-          facets.sort(function(a, b) {
+          facets.sort(function (a, b) {
             return a.data.sortNum - b.data.sortNum;
           });
         } else if (i.data.flags.isPsi) {
           if (typeof i.data.sortNum === 'undefined' || i.data.sortNum === null) { i.data.sortNum = 0; }
           psi.push(i);
-          psi.sort(function(a, b) {
+          psi.sort(function (a, b) {
             return a.data.sortNum - b.data.sortNum;
           });
         } else if (i.data.flags.isQuantum) {
           if (typeof i.data.sortNum === 'undefined' || i.data.sortNum === null) { i.data.sortNum = 0; }
           quantum.push(i);
-          quantum.sort(function(a, b) {
+          quantum.sort(function (a, b) {
             return a.data.sortNum - b.data.sortNum;
           });
         } else {
           if (typeof i.data.sortNum === 'undefined' || i.data.sortNum === null) { i.data.sortNum = 0; }
           miscAttributes.push(i);
-          miscAttributes.sort(function(a, b) {
+          miscAttributes.sort(function (a, b) {
             return a.data.sortNum - b.data.sortNum;
           });
         }
@@ -344,20 +344,20 @@ export class TrinityActorSheet extends ActorSheet {
         if (i.data.flags.isMain) {
           if (typeof i.data.sortNum === 'undefined' || i.data.sortNum === null) { i.data.sortNum = 0; }
           npcAttributes.push(i);
-          npcAttributes.sort(function(a, b) {
+          npcAttributes.sort(function (a, b) {
             return a.data.sortNum - b.data.sortNum;
           });
         } else if (i.data.flags.isEnhancement && !i.data.flags.isFacet) {
           if (typeof i.data.sortNum === 'undefined' || i.data.sortNum === null) { i.data.sortNum = 0; }
           npcAttributes.push(i);
-          npcAttributes.sort(function(a, b) {
+          npcAttributes.sort(function (a, b) {
             return a.data.sortNum - b.data.sortNum;
           });
         }
       }
-      if (typeof(i.data.stunts) !== "undefined" && Object.keys(i.data.stunts).length > 0  && i.type !== 'action') { stunts.push(i); }
+      if (typeof (i.data.stunts) !== "undefined" && Object.keys(i.data.stunts).length > 0 && i.type !== 'action') { stunts.push(i); }
 
-      // if (i.type === actorData.data.data.allItemsFilter) { allItems.push(i); }
+      // if (i.type === actorData.system.allItemsFilter) { allItems.push(i); }
       allItems.push(i);
 
     }
@@ -405,12 +405,13 @@ export class TrinityActorSheet extends ActorSheet {
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
+    html = $(html);
 
-/*
-    html.find('.portrait').hover(ev => {
-      event.previousElementSibling.classList.toggle("hidden");
-    });
-*/
+    /*
+        html.find('.portrait').hover(ev => {
+          event.previousElementSibling.classList.toggle("hidden");
+        });
+    */
 
     html.on("mouseenter mouseleave", ".portrait-area", function (event) {
       event.preventDefault();
@@ -425,7 +426,7 @@ export class TrinityActorSheet extends ActorSheet {
         shareable: true,
         uuid: this.actor.uuid
       });
-      console.log("ip",ip);
+      console.log("ip", ip);
       // Display the image popout
       ip.render(true);
 
@@ -500,7 +501,7 @@ export class TrinityActorSheet extends ActorSheet {
     // ex:
     // obj = this.actor.data
     // desc = data.tolerance.value
-    // returns = this.actor.data.data.tolerance.value
+    // returns = this.actor.system.tolerance.value
     function getDescendantProp(obj, desc) {
       var arr = desc.split('.');
       while (arr.length) {
@@ -526,8 +527,7 @@ export class TrinityActorSheet extends ActorSheet {
     html.find('.sub-value').click(ev => {
       // console.log("sub-value, ev:", ev);
       let target = event.currentTarget.dataset.target;
-      if (typeof event.currentTarget.dataset.negative !== "undefined" && event.currentTarget.dataset.negative == "true" )
-        { let negative = true; } else { let negative = false; }
+      if (typeof event.currentTarget.dataset.negative !== "undefined" && event.currentTarget.dataset.negative == "true") { let negative = true; } else { let negative = false; }
       // console.log("event.currentTarget.dataset", event.currentTarget.dataset, event.currentTarget.dataset.itemid);
       if (typeof event.currentTarget.dataset.itemid !== "undefined") {
         let itemid = event.currentTarget.dataset.itemid;
@@ -537,7 +537,7 @@ export class TrinityActorSheet extends ActorSheet {
           item.update({ [target]: 2 });
           // this._setToggleStates();
         }
-        if (current > 0 || negative ) {
+        if (current > 0 || negative) {
           // console.log("sub-value, ev 2:", ev);
           item.update({ [target]: --current });
           // this._render(true);
@@ -549,7 +549,7 @@ export class TrinityActorSheet extends ActorSheet {
           this.actor.update({ [target]: 2 });
           // this._setToggleStates();
         }
-        if (current > 0 || negative ) {
+        if (current > 0 || negative) {
           this.actor.update({ [target]: --current });
           // this._render(true);
           // this._setToggleStates();
@@ -557,7 +557,7 @@ export class TrinityActorSheet extends ActorSheet {
       }
     });
 
-  // Add 1 to value target
+    // Add 1 to value target
     html.find('.add-value').click(ev => {
       let target = event.currentTarget.dataset.target;
       if (typeof event.currentTarget.dataset.itemid !== "undefined") {
@@ -615,7 +615,7 @@ export class TrinityActorSheet extends ActorSheet {
         user: game.user.id,
         speaker: ChatMessage.getSpeaker(),
         flavor: (item.data.data.typeName + " Description"),
-        content: ("<h2>"+item.data.name+"</h2>"+item.data.data.description)
+        content: ("<h2>" + item.data.name + "</h2>" + item.data.data.description)
       };
       console.log("chatData:", chatData);
       ChatMessage.create(chatData);
@@ -633,13 +633,13 @@ export class TrinityActorSheet extends ActorSheet {
       // console.log("chat output:", this, ev, li, liID);
       let ownerName = item.data.name;
       let addinfo = (item.data.data.subItems[liID].type === "stunt") ? item.data.data.subItems[liID].costDescription : item.data.data.subItems[liID].tagValue;
-      let subItemName = item.data.data.subItems[liID].name+" ("+addinfo+")";
+      let subItemName = item.data.data.subItems[liID].name + " (" + addinfo + ")";
       let subItemDesc = item.data.data.subItems[liID].description;
       let chatData = {
         user: game.user.id,
         speaker: ChatMessage.getSpeaker(),
-        flavor: ("From "+ownerName),
-        content: ("<h2>"+subItemName+"</h2>"+subItemDesc)
+        flavor: ("From " + ownerName),
+        content: ("<h2>" + subItemName + "</h2>" + subItemDesc)
       };
       ChatMessage.create(chatData);
     });
@@ -657,7 +657,7 @@ export class TrinityActorSheet extends ActorSheet {
             label: "Yes",
             callback: dlg => {
               // this.actor.deleteOwnedItem(li.data("itemId"));
-              this.actor.deleteEmbeddedDocuments('Item',[li.data("itemId")]);
+              this.actor.deleteEmbeddedDocuments('Item', [li.data("itemId")]);
               li.slideUp(200, () => this.render(false));
             }
           },
@@ -686,7 +686,7 @@ export class TrinityActorSheet extends ActorSheet {
             label: "Yes",
             callback: dlg => {
               // this.actor.update({[rollDeleteString]: null});
-              game.actors.get(aID).update({[rollDeleteString]: null});
+              game.actors.get(aID).update({ [rollDeleteString]: null });
 
             }
           },
@@ -707,7 +707,7 @@ export class TrinityActorSheet extends ActorSheet {
     // New Test, for FormApplication
     html.find('.actor-roll-button').click(ev => {
 
-      new RollForm(this.actor, {event:ev}).render(true);
+      new RollForm(this.actor, { event: ev }).render(true);
     });
 
     // Set InitRoll
@@ -716,7 +716,7 @@ export class TrinityActorSheet extends ActorSheet {
       console.log("Init Roll Changed:", ev);
       let rValue = ev.currentTarget.value;
       let aID = this.actor.id;
-      this.actor.data.data.initiativeRollID = rValue;
+      this.actor.system.initiativeRollID = rValue;
       game.actors.get(aID).update({"data.initiativeRollID": rValue});
     });
     */
@@ -738,7 +738,7 @@ export class TrinityActorSheet extends ActorSheet {
     console.log("Health Box Left Click");
 
     // Model T handling: Create Injury Item
-    if ( game.settings.get("trinity", "healthModel") === "modelT" ) {
+    if (game.settings.get("trinity", "healthModel") === "modelT") {
       console.log("Create Item - Injury");
 
       const header = event.currentTarget;
@@ -762,8 +762,8 @@ export class TrinityActorSheet extends ActorSheet {
       itemData.data.flags.isInjury = true;
       itemData.data.flags.isComplication = true;
       itemData.data.complication = {};
-      itemData.data.complication.value = Object.values(this.actor.data.data.health.details).find(b => (b.type === +header.dataset.healthtype)).penalty;
-      itemData.data.injury.value = Object.values(this.actor.data.data.health.details).find(b => (b.type === +header.dataset.healthtype)).penalty;
+      itemData.data.complication.value = Object.values(this.actor.system.health.details).find(b => (b.type === +header.dataset.healthtype)).penalty;
+      itemData.data.injury.value = Object.values(this.actor.system.health.details).find(b => (b.type === +header.dataset.healthtype)).penalty;
 
       // pop-out new condition, bypass normal process
       delete itemData.data["type"];
@@ -777,13 +777,13 @@ export class TrinityActorSheet extends ActorSheet {
     // Model S handling: Update state
     let header = event.currentTarget;
     let hKey = header.dataset.healthkey;
-    let hStates = this.actor.data.data.health.details[hKey].states;
+    let hStates = this.actor.system.health.details[hKey].states;
     let hStateIndex = header.dataset.healthstate;
-    let hState = this.actor.data.data.health.details[hKey].states[hStateIndex];
+    let hState = this.actor.system.health.details[hKey].states[hStateIndex];
 
-    if ( hState < 3 ) {
+    if (hState < 3) {
       hStates[hStateIndex] = ++hState;
-      this.actor.update({ "data.health.details" : { [hKey] : { states : hStates } } } );
+      this.actor.update({ "data.health.details": { [hKey]: { states: hStates } } });
     }
 
     return;
@@ -794,18 +794,18 @@ export class TrinityActorSheet extends ActorSheet {
     console.log("Health Box Right Click");
 
     // Model T handling: Nothing happens
-    if ( game.settings.get("trinity", "healthModel") === "modelT" ) { return; }
+    if (game.settings.get("trinity", "healthModel") === "modelT") { return; }
 
     // Model S handling: Update state
     let header = event.currentTarget;
     let hKey = header.dataset.healthkey;
-    let hStates = this.actor.data.data.health.details[hKey].states;
+    let hStates = this.actor.system.health.details[hKey].states;
     let hStateIndex = header.dataset.healthstate;
-    let hState = this.actor.data.data.health.details[hKey].states[hStateIndex];
+    let hState = this.actor.system.health.details[hKey].states[hStateIndex];
 
-    if ( hState > 0 ) {
+    if (hState > 0) {
       hStates[hStateIndex] = --hState;
-      this.actor.update({ "data.health.details" : { [hKey] : { states : hStates } } } );
+      this.actor.update({ "data.health.details": { [hKey]: { states: hStates } } });
     }
 
     return;
@@ -835,14 +835,14 @@ export class TrinityActorSheet extends ActorSheet {
     const itemData = {
       name: name,
       type: type,
-      data: data
+      system: data
     };
 
     // Subtype / Flag handling
     if (typeof header.dataset.flag !== 'undefined' && header.dataset.flag !== null) {
       console.log("Create Item Flag Handling");
-      itemData.data.flags = {};
-      itemData.data.flags[header.dataset.flag] = true;
+      itemData.system.flags = {};
+      itemData.system.flags[header.dataset.flag] = true;
     }
 
     // Injury Handling
@@ -857,8 +857,8 @@ export class TrinityActorSheet extends ActorSheet {
         itemData.data.flags.isInjury = true;
         itemData.data.flags.isComplication = true;
         itemData.data.complication = {};
-        itemData.data.complication.value = Object.values(this.actor.data.data.health.details).find(b => (b.type === +header.dataset.healthtype)).penalty;
-        itemData.data.injury.value = Object.values(this.actor.data.data.health.details).find(b => (b.type === +header.dataset.healthtype)).penalty;
+        itemData.data.complication.value = Object.values(this.actor.system.health.details).find(b => (b.type === +header.dataset.healthtype)).penalty;
+        itemData.data.injury.value = Object.values(this.actor.system.health.details).find(b => (b.type === +header.dataset.healthtype)).penalty;
 
         // pop-out new condition, bypass normal process
         delete itemData.data["type"];
@@ -874,10 +874,10 @@ export class TrinityActorSheet extends ActorSheet {
     console.log(itemData);
 
     // Remove the type from the dataset since it's in the itemData.type prop.
-    delete itemData.data["type"];
+    delete itemData.system["type"];
 
     // Finally, create the item!
-    return this.actor.createEmbeddedDocuments('Item',[itemData]);
+    return this.actor.createEmbeddedDocuments('Item', [itemData]);
   }
 
   _onRoll(event) {
@@ -885,13 +885,13 @@ export class TrinityActorSheet extends ActorSheet {
     console.log(event);
     event.preventDefault();
     if (event.currentTarget.classList.contains("saved-roll")) {
-      let rollData = this.actor.data.data.savedRolls[event.currentTarget.dataset.rollid];
+      let rollData = this.actor.system.savedRolls[event.currentTarget.dataset.rollid];
       console.log("rollData found: ", rollData);
       // trinityRoll(this.actor, passElements, event);
-      new RollForm(this.actor, {event:event}, rollData).render(true);
+      new RollForm(this.actor, { event: event }, rollData).render(true);
     } else {
       // trinityRoll(this.actor, null, event);
-      new RollForm(this.actor, {event:event}, null, event.currentTarget.id).render(true);
+      new RollForm(this.actor, { event: event }, null, event.currentTarget.id).render(true);
 
     }
   }

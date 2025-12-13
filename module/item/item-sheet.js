@@ -4,16 +4,16 @@
  */
 export class TrinityItemSheet extends ItemSheet {
 
-/*
-  constructor(object={}, options={}) {
-    super(options);
-    this.object = object;
-    this.form = null;
-    this.filepickers = [];
-    this.editors = {};
-    this.options.toggled = [];
-  }
-*/
+  /*
+    constructor(object={}, options={}) {
+      super(options);
+      this.object = object;
+      this.form = null;
+      this.filepickers = [];
+      this.editors = {};
+      this.options.toggled = [];
+    }
+  */
 
   /** @override */
   static get defaultOptions() {
@@ -22,17 +22,17 @@ export class TrinityItemSheet extends ItemSheet {
       width: 520,
       height: 480,
       tabs:
-      [
-        {
-        navSelector: ".sheet-tabs",
-        contentSelector: ".sheet-body",
-        initial: "description"
-        }
-      ],
+        [
+          {
+            navSelector: ".sheet-tabs",
+            contentSelector: ".sheet-body",
+            initial: "description"
+          }
+        ],
       dragDrop:
-      [
-                { dragSelector: '.item[data-item-id]', dropSelector: null }
-      ]
+        [
+          { dragSelector: '.item[data-item-id]', dropSelector: null }
+        ]
     });
   }
 
@@ -67,8 +67,8 @@ export class TrinityItemSheet extends ItemSheet {
     const stunts = [];
     const tags = [];
 
-    for (let i of Object.keys(this.item.data.data.subItems)) {
-      let subItem = this.item.data.data.subItems[i];
+    for (let i of Object.keys(this.item.system.subItems)) {
+      let subItem = this.item.system.subItems[i];
       if (subItem.type === 'stunt') { stunts.push(subItem); }
       if (subItem.type === 'tag') { tags.push(subItem); }
     }
@@ -97,6 +97,7 @@ export class TrinityItemSheet extends ItemSheet {
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
+    html = $(html);
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
@@ -131,7 +132,7 @@ export class TrinityItemSheet extends ItemSheet {
               // This bit was working, not sure why it stopped working in all instances.
               // Replaced it with code that nulls out the item, rather than deleting it.
               // this.item.update({[`data.subItems.-=${liID}`] : null});
-              this.item.update({[`data.subItems.${liID}`] : null});
+              this.item.update({ [`system.subItems.${liID}`]: null });
               console.log("after delete", this);
               // li.slideUp(200, () => this.render(false));
             }
@@ -152,15 +153,15 @@ export class TrinityItemSheet extends ItemSheet {
       // let ownerItem =
       // console.log("chat output:", this, ev, li, liID);
       let ownerName = this.item.data.name;
-      let addinfo = (this.item.data.data.subItems[liID].type === "stunt") ? this.item.data.data.subItems[liID].costDescription : this.item.data.data.subItems[liID].tagValue;
-      let subItemName = this.item.data.data.subItems[liID].name+" ("+addinfo+")";
-      let subItemDesc = this.item.data.data.subItems[liID].description;
+      let addinfo = (this.item.system.subItems[liID].type === "stunt") ? this.item.system.subItems[liID].costDescription : this.item.system.subItems[liID].tagValue;
+      let subItemName = this.item.system.subItems[liID].name + " (" + addinfo + ")";
+      let subItemDesc = this.item.system.subItems[liID].description;
       console.log("chat output:", this, ownerName, subItemName, subItemDesc);
       let chatData = {
         user: game.user.id,
         speaker: ChatMessage.getSpeaker(),
-        flavor: ("From "+ownerName),
-        content: ("<h2>"+subItemName+"</h2>"+subItemDesc)
+        flavor: ("From " + ownerName),
+        content: ("<h2>" + subItemName + "</h2>" + subItemDesc)
       };
       console.log("chatData:", chatData);
       ChatMessage.create(chatData);
@@ -191,7 +192,7 @@ export class TrinityItemSheet extends ItemSheet {
       console.log("sub-value, ev:", ev);
       let target = event.currentTarget.dataset.target;
       let negative = false;
-      if (typeof event.currentTarget.dataset.negative !== "undefined" && event.currentTarget.dataset.negative == "true" ) { negative = true; }
+      if (typeof event.currentTarget.dataset.negative !== "undefined" && event.currentTarget.dataset.negative == "true") { negative = true; }
       let current = getDescendantProp(this.item.data, target);
       if (current === null) {
         this.item.update({ [target]: 2 });
@@ -202,7 +203,7 @@ export class TrinityItemSheet extends ItemSheet {
       }
     });
 
-  // Add Value
+    // Add Value
     html.find('.add-value').click(ev => {
       let target = event.currentTarget.dataset.target;
       let current = getDescendantProp(this.item.data, target);
@@ -231,11 +232,11 @@ export class TrinityItemSheet extends ItemSheet {
     console.log(event);
     console.log(data);
 
-    switch ( data.type ) {
-    /*  case "ActiveEffect":
-        return this._onDropActiveEffect(event, data);
-      case "Actor":
-        return this._onDropActor(event, data); */
+    switch (data.type) {
+      /*  case "ActiveEffect":
+          return this._onDropActiveEffect(event, data);
+        case "Actor":
+          return this._onDropActor(event, data); */
       case "Item":
         return this._onDropItem(event, data);
       case "Folder":
@@ -244,7 +245,7 @@ export class TrinityItemSheet extends ItemSheet {
   }
 
   async _onDropItem(event, data) {
-    if ( !this.item.isOwner ) return false;
+    if (!this.item.isOwner) return false;
     const item = await Item.implementation.fromDropData(data);
     const itemData = item.toObject();
 
@@ -256,10 +257,10 @@ export class TrinityItemSheet extends ItemSheet {
   }
 
   async _onDropFolder(event, data) {
-    if ( !this.item.isOwner ) return [];
-    if ( data.documentName !== "Item" ) return [];
+    if (!this.item.isOwner) return [];
+    if (data.documentName !== "Item") return [];
     const folder = game.folders.get(data.id);
-    if ( !folder ) return [];
+    if (!folder) return [];
     return this._onDropGetInfo(folder.contents.map(e => e.toObject()));
   }
 
@@ -276,38 +277,38 @@ export class TrinityItemSheet extends ItemSheet {
         case "stunt":
           // console.log("_onDropGetInfo this-in-loop", this);
           // console.log("_onDropGetInfo droppedItem-in-loop", droppedItem);
-          subItems = this.item.data.data.subItems;
+          subItems = this.item.system.subItems;
           subItems[droppedItem._id] = {
-            id : droppedItem._id,
-            name : droppedItem.name,
-            type : droppedItem.type,
-            description : droppedItem.data.description,
-            costDescription : droppedItem.data.costDescription
+            id: droppedItem._id,
+            name: droppedItem.name,
+            type: droppedItem.type,
+            description: droppedItem.system.description,
+            costDescription: droppedItem.system.costDescription
           };
-          this.item.update({'data.subItems': subItems});
+          this.item.update({ 'system.subItems': subItems });
           break;
         case "tag":
-          subItems = this.item.data.data.subItems;
+          subItems = this.item.system.subItems;
           subItems[droppedItem._id] = {
-            id : droppedItem._id,
-            name : droppedItem.name,
-            type : droppedItem.type,
-            description : droppedItem.data.description,
-            tagValue : droppedItem.data.tagValue
+            id: droppedItem._id,
+            name: droppedItem.name,
+            type: droppedItem.type,
+            description: droppedItem.system.description,
+            tagValue: droppedItem.system.tagValue
           };
-          this.item.update({'data.subItems': subItems});
+          this.item.update({ 'system.subItems': subItems });
           break;
         case "modePower":
-          subItems = this.item.data.data.subItems;
+          subItems = this.item.system.subItems;
           subItems[droppedItem._id] = {
-            id : droppedItem._id,
-            name : droppedItem.name,
-            type : droppedItem.type,
-            description : droppedItem.data.description,
-            costDescription : droppedItem.data.costDescription,
-            dotRequirement : droppedItem.data.dotRequirement
+            id: droppedItem._id,
+            name: droppedItem.name,
+            type: droppedItem.type,
+            description: droppedItem.system.description,
+            costDescription: droppedItem.system.costDescription,
+            dotRequirement: droppedItem.system.dotRequirement
           };
-          this.item.update({'data.subItems': subItems});
+          this.item.update({ 'system.subItems': subItems });
           break;
       }
     }

@@ -12,22 +12,22 @@ export async function trinityRoll(targetActor, pickedElements, event, force) {
   const dataset = element.dataset || {};
   var targetAttr = [];
   var targetSkill = [];
-//   var allComplications = actor.complications;
+  //   var allComplications = actor.complications;
 
-// If a saved roll is passed to this function, along with force = true, then roll it without the dialog.
-// All variables should already be present.
-if (force && typeof pickedElements !== 'undefined' && typeof targetActor !== 'undefined') {
-  let rollresult = _roll(targetActor, pickedElements);
-  console.log("rollresult", rollresult);
-  return rollresult;
-} else if (force) {
-  console.log("Forced roll requested, but not all roll data is present.");
-  return 0;
-}
+  // If a saved roll is passed to this function, along with force = true, then roll it without the dialog.
+  // All variables should already be present.
+  if (force && typeof pickedElements !== 'undefined' && typeof targetActor !== 'undefined') {
+    let rollresult = _roll(targetActor, pickedElements);
+    console.log("rollresult", rollresult);
+    return rollresult;
+  } else if (force) {
+    console.log("Forced roll requested, but not all roll data is present.");
+    return 0;
+  }
 
   // Elements table, or picked elements, will include the details of the selected roll components. (Replacing rollParts)
   // Build defaults if empty
-  if (typeof pickedElements === 'undefined' || pickedElements === null ) {
+  if (typeof pickedElements === 'undefined' || pickedElements === null) {
     console.log("Creating default pickedElements");
     pickedElements = {};
     // Object.assign(pickedElements, pickedElementsProto);
@@ -40,7 +40,7 @@ if (force && typeof pickedElements !== 'undefined' && typeof targetActor !== 'un
 
   // Attribute info
   if (typeof dataset.attrname !== 'undefined' && dataset.attrname !== null) {
-    targetAttr = Object.values(targetActor.data.data.attributes).find(attribute => attribute.name === dataset.attrname);
+    targetAttr = Object.values(targetActor.system.attributes).find(attribute => attribute.name === dataset.attrname);
     pickedElements.attr = targetAttr;
     console.log("Picked Elements:");
     console.log(pickedElements);
@@ -51,42 +51,42 @@ if (force && typeof pickedElements !== 'undefined' && typeof targetActor !== 'un
   // Skill info
   if (typeof dataset.skillid !== 'undefined' && dataset.skillid !== null) {
     console.log(dataset.skillid);
-    console.log(targetActor.data.items);
-    // targetSkill = Object.values(targetActor.data.items).find(skill => skill._id === dataset.skillid);
-    targetSkill = targetActor.data.items.get(dataset.skillid);
+    console.log(targetActor.items);
+    // targetSkill = Object.values(targetActor.items).find(skill => skill._id === dataset.skillid);
+    targetSkill = targetActor.items.get(dataset.skillid);
     console.log(targetSkill);
     pickedElements.skil.name = targetSkill.name;
-    pickedElements.skil.value = targetSkill.data.data.value; // Added .data - Why? Something with v7 to v9 ?
+    pickedElements.skil.value = targetSkill.system.value; // Added .data - Why? Something with v7 to v9 ?
     console.log("Found Skill Info:");
     console.log(targetSkill);
   }
 
-/*
-  // Set defaults, and overwriting with data found earlier.   << Move this section to front -- nvrmnd
-  let attrPart = targetAttr.value || 0;
-  let skilPart = targetSkill.value || 0;
-  let dicePart = skilPart+attrPart;
-  let explPart = dataset.explode || 10;
-  let succPart = dataset.successvalue || 8;
-  let enhaPart = dataset.enhancements || 0;
-  // narrative scale must be minimum 1
-  let nscaPart = dataset.narrascale || 1;
-  // measure dramatic scale in difference (i.e. a scale 1 person vs. a scale 1 obstacle is 0)
-  let dscaPart = dataset.dramascale || 0;
+  /*
+    // Set defaults, and overwriting with data found earlier.   << Move this section to front -- nvrmnd
+    let attrPart = targetAttr.value || 0;
+    let skilPart = targetSkill.value || 0;
+    let dicePart = skilPart+attrPart;
+    let explPart = dataset.explode || 10;
+    let succPart = dataset.successvalue || 8;
+    let enhaPart = dataset.enhancements || 0;
+    // narrative scale must be minimum 1
+    let nscaPart = dataset.narrascale || 1;
+    // measure dramatic scale in difference (i.e. a scale 1 person vs. a scale 1 obstacle is 0)
+    let dscaPart = dataset.dramascale || 0;
+  
+    var rollParts = {
+      attr : attrPart,
+      skil : skilPart,
+      dice : skilPart+attrPart,
+      expl : explPart,
+      succ : succPart,
+      enha : enhaPart,
+      nsca : nscaPart,
+      dsca : dscaPart
+    };
+    */
 
-  var rollParts = {
-    attr : attrPart,
-    skil : skilPart,
-    dice : skilPart+attrPart,
-    expl : explPart,
-    succ : succPart,
-    enha : enhaPart,
-    nsca : nscaPart,
-    dsca : dscaPart
-  };
-  */
-
-// DIALOG Section
+  // DIALOG Section
   class RDialog extends Dialog {
 
     constructor(data, params, options) {
@@ -97,6 +97,7 @@ if (force && typeof pickedElements !== 'undefined' && typeof targetActor !== 'un
 
     activateListeners(html) {
       super.activateListeners(html);
+      html = $(html);
 
       // ATTR Click
       html.find('.attr-label').click((event) => {
@@ -134,107 +135,107 @@ if (force && typeof pickedElements !== 'undefined' && typeof targetActor !== 'un
 
 
   // let html = await renderTemplate("systems/trinity/templates/roll-prompt.html", {roll: rollParts, actor: targetActor, elements: pickedElements});
-  let html = await renderTemplate("systems/trinity/templates/roll-prompt.html", {actor: targetActor, elements: pickedElements});
-  let savehtml = await renderTemplate("systems/trinity/templates/save-prompt.html", {actor: targetActor, elements: pickedElements});
+  let html = await renderTemplate("systems/trinity/templates/roll-prompt.html", { actor: targetActor, elements: pickedElements });
+  let savehtml = await renderTemplate("systems/trinity/templates/save-prompt.html", { actor: targetActor, elements: pickedElements });
 
 
-/* -----------------------------------------------------------------------------
-  let savePrompt = new Dialog({
-    title: "Save As",
-    id: "savedialog",
-    content: savehtml,
-    buttons: {
-      submit: {
-        label: "Submit",
-        callback: (savehtml) => {
-        // const results = (new FormDataExtended(html.find("form")[0])).toObject();
-        let results = document.getElementById('saveName').value;
-        console.log("Save Roll As: ",results);
-
-        let uniqueRollNumber = randomID(16);
-
-        targetActor.data.data.savedRolls[uniqueRollNumber] = {
-          name: results,
-          elements: pickedElements,
-        };
-
-        // console.log(results);
-        console.log("Saved Roll:", targetActor.data.data.savedRolls);
-        return;
+  /* -----------------------------------------------------------------------------
+    let savePrompt = new Dialog({
+      title: "Save As",
+      id: "savedialog",
+      content: savehtml,
+      buttons: {
+        submit: {
+          label: "Submit",
+          callback: (savehtml) => {
+          // const results = (new FormDataExtended(html.find("form")[0])).toObject();
+          let results = document.getElementById('saveName').value;
+          console.log("Save Roll As: ",results);
+  
+          let uniqueRollNumber = randomID(16);
+  
+          targetActor.system.savedRolls[uniqueRollNumber] = {
+            name: results,
+            elements: pickedElements,
+          };
+  
+          // console.log(results);
+          console.log("Saved Roll:", targetActor.system.savedRolls);
+          return;
+          }
         }
       }
-    }
-  });
-
-  ------------------------------------------------------- */
+    });
+  
+    ------------------------------------------------------- */
 
   // Last mostly working Code
 
   let savePrompt = new Dialog({
-        title: "Save As",
-        content: savehtml,
-        default: 'save',
-        buttons: {
-          save: {
-            icon: '<i class="fas fa-check"></i>',
-            label: 'Save',
-            default: true,
-            callback: html => {
-              let results = document.getElementById('saveName').value;
-              console.log("Save Roll As: ",results);
+    title: "Save As",
+    content: savehtml,
+    default: 'save',
+    buttons: {
+      save: {
+        icon: '<i class="fas fa-check"></i>',
+        label: 'Save',
+        default: true,
+        callback: html => {
+          let results = document.getElementById('saveName').value;
+          console.log("Save Roll As: ", results);
 
-              let uniqueRollNumber = randomID(16);
-              let diceNumber = pickedElements.attr.value + pickedElements.skil.value;
-              let enhNumber = pickedElements.enha.value;
+          let uniqueRollNumber = randomID(16);
+          let diceNumber = pickedElements.attr.value + pickedElements.skil.value;
+          let enhNumber = pickedElements.enha.value;
 
-              // let saveOnActor = game.actors.get(targetActor.id);
+          // let saveOnActor = game.actors.get(targetActor.id);
 
-              let updates = {
-                "data.savedRolls": {
-                  [uniqueRollNumber]: {
-                    name: results,
-                    elements: pickedElements,
-                    dice: diceNumber,
-                    enh: enhNumber
-                  }
-                }
-              };
-
-              console.log("Updates", updates);
-
-              game.actors.get(targetActor.id).update(updates);
-
-              console.log("Saved Roll on Actor:", game.actors.get(targetActor.id));
-              trinityRoll(targetActor, pickedElements);
-              return;
-            },
-          }
-        }
-      });
-
-/* Failed async approach
-  async function SavePrompt(){
-    return await new Promise(async (resolve) => {
-      let savePromptDialog = new Dialog({
-          title: "Save As",
-          content: savehtml,
-          default: 'save',
-          buttons: {
-            save: {
-              icon: '<i class="fas fa-check"></i>',
-              label: 'Save',
-              default: true,
-              callback: async(html) => {
-                let results = document.getElementById('saveName').value;
-                console.log("Save Roll As: ",results);
-                resolve(results);
-              },
+          let updates = {
+            "system.savedRolls": {
+              [uniqueRollNumber]: {
+                name: results,
+                elements: pickedElements,
+                dice: diceNumber,
+                enh: enhNumber
+              }
             }
-          }
-        });
-        savePromptDialog.render(true);
-    });
-*/
+          };
+
+          console.log("Updates", updates);
+
+          game.actors.get(targetActor.id).update(updates);
+
+          console.log("Saved Roll on Actor:", game.actors.get(targetActor.id));
+          trinityRoll(targetActor, pickedElements);
+          return;
+        },
+      }
+    }
+  });
+
+  /* Failed async approach
+    async function SavePrompt(){
+      return await new Promise(async (resolve) => {
+        let savePromptDialog = new Dialog({
+            title: "Save As",
+            content: savehtml,
+            default: 'save',
+            buttons: {
+              save: {
+                icon: '<i class="fas fa-check"></i>',
+                label: 'Save',
+                default: true,
+                callback: async(html) => {
+                  let results = document.getElementById('saveName').value;
+                  console.log("Save Roll As: ",results);
+                  resolve(results);
+                },
+              }
+            }
+          });
+          savePromptDialog.render(true);
+      });
+  */
 
 
   let rollDialog = new RDialog({
@@ -247,7 +248,7 @@ if (force && typeof pickedElements !== 'undefined' && typeof targetActor !== 'un
         label: "Roll",
         callback: () => {
           for (let part of Object.keys(pickedElements)) {
-            if (document.getElementById(part)){
+            if (document.getElementById(part)) {
               pickedElements[part].value = parseInt(document.getElementById(part).value) || pickedElements[part].value;
               // console.log("Found Part:");
               // console.log(part);
@@ -268,7 +269,7 @@ if (force && typeof pickedElements !== 'undefined' && typeof targetActor !== 'un
         callback: () => {
           /* Last mostly working code */
           for (let part of Object.keys(pickedElements)) {
-            if (document.getElementById(part)){
+            if (document.getElementById(part)) {
               pickedElements[part].value = parseInt(document.getElementById(part).value) || pickedElements[part].value;
             }
           }
@@ -295,7 +296,7 @@ if (force && typeof pickedElements !== 'undefined' && typeof targetActor !== 'un
           let diceNumber = pickedElements.attr.value + pickedElements.skil.value;
           let enhNumber = pickedElements.enha.value;
           let updates = {
-            "data.savedRolls": {
+            "system.savedRolls": {
               [uniqueRollNumber]: {
                 name: saveNameAs,
                 elements: pickedElements,
@@ -331,27 +332,27 @@ if (force && typeof pickedElements !== 'undefined' && typeof targetActor !== 'un
         }
       },
     },
-    default:"roll",
+    default: "roll",
     callback: html => {
       pickedElements = {};
       // Object.assign(pickedElements, pickedElementsProto);
       pickedElements = JSON.parse(JSON.stringify(pickedElementsProto));
       return;
     }
-  }, {targetActor, pickedElements});
+  }, { targetActor, pickedElements });
 
   rollDialog.render(true);
 
-// END DIALOG Section
+  // END DIALOG Section
 
   function _roll(targetActor, p) {
     // Old Formula, w/ wrong NScale
-//    let rollFormula = `(((${p.attr.value}+${p.skil.value})d10x${p.expl.value}cs>=${p.succ.value})+(${p.enha.value}+${p.dsca.value}))*${p.nsca.value}`;
+    //    let rollFormula = `(((${p.attr.value}+${p.skil.value})d10x${p.expl.value}cs>=${p.succ.value})+(${p.enha.value}+${p.dsca.value}))*${p.nsca.value}`;
 
-// Complication List
+    // Complication List
     let compList = "";
     console.log(targetActor);
-    if( typeof targetActor.complications !== 'undefined' && targetActor.complications !== null) {
+    if (typeof targetActor.complications !== 'undefined' && targetActor.complications !== null) {
       for (let comp of targetActor.complications) {
         if (compList.length > 0) {
           compList += "<br/>";
@@ -378,12 +379,12 @@ if (force && typeof pickedElements !== 'undefined' && typeof targetActor !== 'un
     // let label = p.attr.name ? `Rolling ${p.attr.name}` : '';
     let label = [p.skil.name, p.attr.name, p.enha.name].join(' • ');
 
-/** Old Method
-    roll.roll().toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: targetActor }),
-      flavor: label
-    });
-**/
+    /** Old Method
+        roll.roll().toMessage({
+          speaker: ChatMessage.getSpeaker({ actor: targetActor }),
+          flavor: label
+        });
+    **/
 
     async function completeRoll() {
       ChatMessage.create({
@@ -402,6 +403,6 @@ if (force && typeof pickedElements !== 'undefined' && typeof targetActor !== 'un
 
 
 
-return;
+  return;
 
 }
