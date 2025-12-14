@@ -147,13 +147,17 @@ export class TrinityActorSheet extends ActorSheet {
   /** @override */
   get template() {
     const path = "systems/trinity/templates/actor";
+    // Use this.actor.type for v11+ compatibility (fallback to this.actor.data.type for v9)
+    const actorType = this.actor.type || this.actor.data?.type;
 
-    if (this.actor.data.type == 'TrinityCharacter') {
+    if (actorType == 'TrinityCharacter') {
       return `${path}/trinity-actor-sheet.html`;
     }
-    if (this.actor.data.type == 'TrinityNPC') {
+    if (actorType == 'TrinityNPC') {
       return `${path}/trinity-actor-sheet-npc.html`;
     }
+    // Fallback to default template if type doesn't match
+    return `${path}/trinity-actor-sheet.html`;
   }
 
   /** @override */
@@ -243,12 +247,14 @@ export class TrinityActorSheet extends ActorSheet {
     */
 
     // Identify Saved Rolls w/ Initiative Flagged
-    for (let sRoll of Object.keys(this.actor.system.savedRolls)) {
-      // IF check for compatibility w/ new savedRolls styles
-      if (typeof this.actor.system.savedRolls[sRoll].elements !== 'undefined') {
-        if (typeof this.actor.system.savedRolls[sRoll].elements.init !== 'undefined' && this.actor.system.savedRolls[sRoll].elements.init !== null) {
-          if (this.actor.system.savedRolls[sRoll].elements.init.value) {
-            initRolls.push(sRoll);
+    if (this.actor.system.savedRolls) {
+      for (let sRoll of Object.keys(this.actor.system.savedRolls)) {
+        // IF check for compatibility w/ new savedRolls styles
+        if (typeof this.actor.system.savedRolls[sRoll].elements !== 'undefined') {
+          if (typeof this.actor.system.savedRolls[sRoll].elements.init !== 'undefined' && this.actor.system.savedRolls[sRoll].elements.init !== null) {
+            if (this.actor.system.savedRolls[sRoll].elements.init.value) {
+              initRolls.push(sRoll);
+            }
           }
         }
       }
