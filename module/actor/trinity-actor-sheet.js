@@ -171,8 +171,9 @@ export class TrinityActorSheet extends ActorSheet {
     const data = super.getData();
     data.dtypes = ["String", "Number", "Boolean"];
     
-    // Only prepare character items if actor exists and is a character
-    if (this.actor && (this.actor.type === 'TrinityCharacter' || this.actor.data?.type === 'TrinityCharacter')) {
+    // Prepare items for both characters and NPCs (the method handles both types)
+    if (this.actor && (this.actor.type === 'TrinityCharacter' || this.actor.type === 'TrinityNPC' || 
+        this.actor.data?.type === 'TrinityCharacter' || this.actor.data?.type === 'TrinityNPC')) {
       this._prepareTrinityCharacterItems(data);
     }
     
