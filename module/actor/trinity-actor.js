@@ -50,24 +50,26 @@ export class TrinityActor extends Actor {
          // data.items.push(pcAttribs[i]);
          data.items.push(game.items.fromCompendium(pcAttribs[i]));
        }
-       /*
-       for (let i of Object.keys(pcSkills) )
-       {
-         // data.items.push(pcSkills[i]);
-         data.items.push(game.items.fromCompendium(pcSkills[i]));
-       } */
-       super.create(data, options); // Follow through the the rest of the Actor creation process upstream
-     }
-     else if ( data.type == "TrinityNPC" ) {
-       for (let i of Object.keys(npcAttribs) ) // Add basic skills
-       {
-         // data.items.push(npcAttribs[i]);
-         data.items.push(game.items.fromCompendium(npcAttribs[i]));
-       }
-       super.create(data, options); // Follow through the the rest of the Actor creation process upstream
-     }
+      /*
+      for (let i of Object.keys(pcSkills) )
+      {
+        // data.items.push(pcSkills[i]);
+        data.items.push(game.items.fromCompendium(pcSkills[i]));
+      } */
+      return super.create(data, options); // Follow through the the rest of the Actor creation process upstream
+    }
+    else if ( data.type == "TrinityNPC" ) {
+      for (let i of Object.keys(npcAttribs) ) // Add basic skills
+      {
+        // data.items.push(npcAttribs[i]);
+        data.items.push(game.items.fromCompendium(npcAttribs[i]));
+      }
+      return super.create(data, options); // Follow through the the rest of the Actor creation process upstream
+    }
 
- }
+    // Fallback for any other actor types
+    return super.create(data, options);
+}
 
 
   async prepareData() {
@@ -89,7 +91,7 @@ export class TrinityActor extends Actor {
       await setHealth(actorData);
       // setHealth doesn't trigger a redraw of token bars - this does it manually
       if ( typeof canvas.tokens !== "undefined" ) {
-        let token = canvas.tokens.placeables.find(i=>i.data.actorId === this.data._id );
+        let token = canvas.tokens.placeables.find(i=>i.data.actorId === this.id );
         if ( typeof token !== "undefined" ) { token.drawBars(); }
       }
     } else {console.log("NO HEALTH DETAILS");}
