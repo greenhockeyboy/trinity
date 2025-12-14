@@ -147,6 +147,12 @@ export class TrinityActorSheet extends ActorSheet {
   /** @override */
   get template() {
     const path = "systems/trinity/templates/actor";
+    
+    // Safety check: ensure actor exists
+    if (!this.actor) {
+      return `${path}/trinity-actor-sheet.html`;
+    }
+    
     // Use this.actor.type for v11+ compatibility (fallback to this.actor.data.type for v9)
     const actorType = this.actor.type || this.actor.data?.type;
 
@@ -164,7 +170,12 @@ export class TrinityActorSheet extends ActorSheet {
   getData() {
     const data = super.getData();
     data.dtypes = ["String", "Number", "Boolean"];
-    this._prepareTrinityCharacterItems(data);
+    
+    // Only prepare character items if actor exists and is a character
+    if (this.actor && (this.actor.type === 'TrinityCharacter' || this.actor.data?.type === 'TrinityCharacter')) {
+      this._prepareTrinityCharacterItems(data);
+    }
+    
     console.log("getData -----", data);
     return data;
   }
@@ -178,6 +189,12 @@ export class TrinityActorSheet extends ActorSheet {
    * @return {undefined}
    */
   _prepareTrinityCharacterItems(sheetData) {
+    // Safety check: ensure actor and system data exist
+    if (!this.actor || !this.actor.system) {
+      console.warn("TrinityActorSheet: Actor or system data not available");
+      return;
+    }
+    
     const actorData = sheetData.actor;
 
     // Initialize containers.
@@ -261,8 +278,8 @@ export class TrinityActorSheet extends ActorSheet {
     }
 
     // Check that Default Initiative Roll is still valid
-    if (this.actor.system.initiativeRollID !== "") {
-      if (typeof this.actor.system.savedRolls[this.actor.system.initiativeRollID] === 'undefined') {
+    if (this.actor.system?.initiativeRollID !== "") {
+      if (typeof this.actor.system.savedRolls?.[this.actor.system.initiativeRollID] === 'undefined') {
         this.actor.system.initiativeRollID = "";
       }
     }
